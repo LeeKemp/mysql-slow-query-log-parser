@@ -121,7 +121,7 @@ class Query
   
   def to_s
       "Date: #{@date}, Time #{@time}, Lock #{@lock}, Sent #{@sent}, Rows #{@rows} \n #{@sql}"
-   end
+  end
 end
 
 class QueryTotal
@@ -148,11 +148,11 @@ class QueryTotal
 	
     if @min_time > query.getTime or @min_time == -1 then
        @min_time = query.getTime
-     end
+    end
 
-	 if @min_lock > query.getLock or @min_lock == -1 then
+    if @min_lock > query.getLock or @min_lock == -1 then
        @min_lock = query.getLock
-     end
+    end
      
   end
   
