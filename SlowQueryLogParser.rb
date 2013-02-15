@@ -93,13 +93,16 @@ queryTotals = Hash.new
 
 class Query
 
-  def initialize(sql, date, time, lock, rows, sent)
+  def initialize(sql, date, time, lock, rows, sent, user, url, ip)
     @sql     = sql
     @date    = date
     @time    = time.to_i
     @lock   = lock.to_i
     @rows = rows.to_i
     @sent   = sent.to_i
+    @user = user
+    @url = url
+    @ip = ip
 
     # Normalize sql query using RegExp from perl parser
     @normalized_query =  @sql.gsub(/\d+/, "XXX") # Replace numbers
@@ -111,10 +114,22 @@ class Query
     @normalized_query
   end
   
+  def getUser()
+    @user
+  end
+  
+  def getUrl()
+    @url
+  end
+  
+  def getIp()
+    @ip
+  end
+  
   def getTime()
     @time
   end
-  
+
   def getLock()
     @lock
   end
@@ -133,6 +148,7 @@ class QueryTotal
     @max_lock = 0
     @min_time = -1
     @min_lock = -1
+    
   end
 
   def addQuery(query)
@@ -145,7 +161,7 @@ class QueryTotal
     if @max_lock < query.getLock then
       @max_lock = query.getLock
     end
-	
+
     if @min_time > query.getTime or @min_time == -1 then
        @min_time = query.getTime
     end
@@ -155,6 +171,28 @@ class QueryTotal
     end
      
   end
+
+  def getUser()
+    for query in @queries
+        user = query.getUser
+    end
+    user
+  end
+    
+  def getUrl()
+    for query in @queries
+        url = query.getUrl
+    end
+    url
+  end    
+    
+  def getIp()
+    for query in @queries
+        ip = query.getIp
+    end
+    ip
+  end
+ 
   
   def getMax_time
     @max_time
@@ -206,6 +244,9 @@ class QueryTotal
    
   def display
     puts "#{@queries.length} Queries"
+    puts "user: #{getUser}"      
+    puts "url: #{getUrl}"
+    puts "ip: #{getIp}"
     if @queries.length < 10 then
       
       @queries.sort!{ |a,b| a.getTime <=> b.getTime }
@@ -249,7 +290,11 @@ begin
             date = "#{line}".delete("#Time:").lstrip.chop
           
             # Ignore next line in the log (server info)
-            file.gets 
+            line = file.gets
+            sl = line.split(" ")
+            user = sl[2]
+            url = sl[4]
+            ip = sl[5]
           else
             # puts "Found line missing Date info. Date set to 0"
             date = 0
@@ -281,7 +326,7 @@ begin
           # Create and store query object
           # If it is more than one week ago or if it doesn't have a valid timestamp we ignore it
           if date != 0 and not (Date.strptime(date, '%y%m%d') < Date.jd((DateTime.now.jd)) - 8)
-            query = Query.new(sql, date, time, lock, rows, sent)
+            query = Query.new(sql, date, time, lock, rows, sent, user, url, ip)
             queries.push(query)
           end
         else
