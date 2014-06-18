@@ -144,8 +144,8 @@ class QueryTotal
   def initialize(sql)
     @sql     = sql
     @queries = Array.new
-    @max_time = 0
-    @max_lock = 0
+    @max_time = 0.0
+    @max_lock = 0.0
     @min_time = -1
     @min_lock = -1
     
@@ -223,7 +223,7 @@ class QueryTotal
   end
   
   def getAverageTime
-    total = 0
+    total = 0.0
     for query in @queries
       total = total + query.getTime
     end
@@ -231,7 +231,7 @@ class QueryTotal
   end
   
   def getAverageLock
-    total = 0
+    total = 0.0
     for query in @queries
       total = total + query.getLock
     end
